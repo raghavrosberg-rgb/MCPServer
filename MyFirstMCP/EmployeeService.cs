@@ -1,5 +1,5 @@
 using System.Text.Json;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyFirstMCP;
 
@@ -11,7 +11,7 @@ public class EmployeeService
     {
         if (employeeList?.Count > 0)
             return employeeList;
-        var mockData = File.ReadAllText("D:\\employee.json");
+        var mockData = File.ReadAllText(@"D:\Workspace\MCPServer\MyFirstMCP\data\employee.json");
         employeeList = JsonSerializer.Deserialize<List<Employee>>(mockData, JsonSerializerOptions.Web) ?? new List<Employee>();
         return employeeList;
     }

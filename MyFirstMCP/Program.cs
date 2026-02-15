@@ -21,6 +21,7 @@ builder.Services
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<MonkeyService>();
 builder.Services.AddSingleton<EmployeeService>();
+builder.Services.AddSingleton<ProductService>();
 
 await builder.Build().RunAsync();
 
@@ -32,6 +33,39 @@ public static class EchoTool
 
     [McpServerTool, Description("Echoes in reverse the message sent by the client.")]
     public static string ReverseEcho(string message) => new string(message.Reverse().ToArray());
+}
+
+[McpServerToolType]
+public static class ProductTools
+{
+    [McpServerTool, Description("Get a list of products.")]
+    public static async Task<string> GetProducts(ProductService productService)
+    {
+        var list = await productService.GetProductsAsync();
+        return JsonSerializer.Serialize(list);
+    }
+
+    [McpServerTool, Description("Get a product by id.")]
+    public static async Task<string> GetProduct(ProductService productService, [Description("The product id")] string id)
+    {
+        var p = await productService.GetProductByIdAsync(id);
+        return JsonSerializer.Serialize(p);
+    }
+
+    [McpServerTool, Description("Create a product (pass JSON for the product).")]
+    public static async Task<string> CreateProduct(ProductService productService, [Description("Product JSON")] string productJson)
+    {
+        var prod = JsonSerializer.Deserialize<Product>(productJson, JsonSerializerOptions.Web);
+        if (prod == null) return "null";
+        var created = await productService.CreateProductAsync(prod);
+        return JsonSerializer.Serialize(created);
+    }
+
+    [McpServerTool, Description("Delete a product by id.")]
+    public static async Task<bool> DeleteProduct(ProductService productService, [Description("The product id")] string id)
+    {
+        return await productService.DeleteProductAsync(id);
+    }
 }
 
 [McpServerToolType]
